@@ -122,7 +122,7 @@ std::string CAirodump::getESSID()
     }
 
     for(int i = 0; 
-        i < wirelessPacket->wirelessManager.tagLength;
+        i < wirelessPacket->ssidParameter.tagLength;
         i++)
         strEssid += data[i];
 

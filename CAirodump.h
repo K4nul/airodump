@@ -51,6 +51,10 @@ struct ST_WIRELESS_MANAGER
 	u_int8_t timestamp[8];
 	u_int16_t beaconInterval;
 	u_int16_t capabilityInfo;
+};
+
+struct ST_SSID_PARAMETER
+{
 	u_int8_t tagName;
 	u_int8_t tagLength;
 };
@@ -60,6 +64,7 @@ struct ST_WIRELESS_PACKET
 	ST_IEEE80211_RADIOTAP_HEADER ieee80211RadiotapHeader;
 	ST_BEACON_FRAME beaconFrame;
 	ST_WIRELESS_MANAGER wirelessManager;
+	ST_SSID_PARAMETER ssidParameter;
 };
 
 
