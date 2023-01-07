@@ -7,12 +7,12 @@
 #include <stdio.h>
 #include <pcap.h>
 
+
 enum status
 {
     SUCCESS,
     FAIL,
     NEXT
-
 };
 
 struct Param {
@@ -24,8 +24,7 @@ struct ST_IEEE80211_RADIOTAP_HEADER
     u_int8_t        version;     
     u_int8_t        pad;
     u_int16_t       len;         
-    u_int32_t       fpresent;
-	u_int32_t       bpresent;  
+    u_int8_t		present[8];  
 	u_int8_t		flags;
 	u_int8_t		dataRate;
 	u_int16_t		channelFrequency;
@@ -49,7 +48,7 @@ struct ST_BEACON_FRAME
 
 struct ST_WIRELESS_MANAGER
 {
-	u_int64_t timestamp;
+	u_int8_t timestamp[8];
 	u_int16_t beaconInterval;
 	u_int16_t capabilityInfo;
 	u_int8_t tagName;
@@ -69,15 +68,16 @@ class CAirodump
 {
 private:
 	
+	pcap_t* pcap;	
     Param param;
     const u_char* packet;
     std::map<std::string,std::vector<std::string>> apInfo; 
 
 public:
 
-    CAirodump();
+    CAirodump(char * dev);
     ~CAirodump();
-    int airodump(char * dev);
+    int airodump();
 
 private:
 

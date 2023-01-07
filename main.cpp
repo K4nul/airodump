@@ -21,8 +21,8 @@ int main(int argc, char* argv[]) {
 	if (!parse(argc, argv))
 		return -1;
 
-	CAirodump airodump;
-	airodump.airodump(argv[1]);
+	CAirodump airodump(argv[1]);
+	airodump.airodump();
 
 	return 0;
 }

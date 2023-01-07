@@ -1,17 +1,25 @@
 #include "CAirodump.h"
 
-CAirodump::CAirodump(){}
-CAirodump::~CAirodump(){}
-
-int CAirodump::airodump(char * dev)
+CAirodump::CAirodump(char* dev)
 {
     param.dev_ = dev;
 	char errbuf[PCAP_ERRBUF_SIZE];
-	pcap_t* pcap = pcap_open_live(param.dev_, BUFSIZ, 1, 1000, errbuf);
+	pcap = pcap_open_live(param.dev_, BUFSIZ, 1, 1000, errbuf);
 	if (pcap == NULL) {
 		fprintf(stderr, "pcap_open_live(%s) return null - %s\n", param.dev_, errbuf);
-		return -1;
+        exit(1);
 	}
+
+}
+
+CAirodump::~CAirodump(){
+
+    pcap_close(pcap);  
+}
+
+
+int CAirodump::airodump()
+{
 
     while(1)
     {
@@ -20,15 +28,16 @@ int CAirodump::airodump(char * dev)
             break; 
         if (status == NEXT)
             continue;
-
+        
+        convertPacket();
         printLog();
     }
 
-    pcap_close(pcap);  
     
     return 0;
 
 }
+
 int CAirodump::getWirelessPacket(pcap_t* pcap)
 {
 
@@ -53,29 +62,34 @@ void CAirodump::convertPacket()
    
     if(wirelessPacket->beaconFrame.frameControl != 0x80)
         return;    
+
     u_int8_t antennaSignal = 256 - wirelessPacket->ieee80211RadiotapHeader.antennaSignal;
 
-    std::string bssid = getBSSID();
-    std::string essid = getESSID();
-    std::string pwr = std::to_string(-antennaSignal);
+    std::string strPwr = std::to_string(-antennaSignal);
+    std::string strBssid = getBSSID();
+    std::string strEssid = getESSID();
+    
     
     std::vector<std::string> info;
-    info.push_back(pwr); 
-    info.push_back(essid);
+    info.push_back(strPwr); 
+    info.push_back(strEssid);
 
-    apInfo[bssid] = info;
+    apInfo[strBssid] = info;
 
 }
 
 void CAirodump::printLog()
 {
-    convertPacket();
     system("clear");
-    std::cout << "BSSID\t\t\t" << "PWR                     " << "ESSID" <<std::endl;
+    std::cout << "BSSID\t\t\t" << "PWR\t\t\t" << "ESSID" <<std::endl;
     std::cout << std::endl;
     for(auto iter = apInfo.begin(); iter != apInfo.end(); iter++)
     {
-        std::cout << iter->first << "\t" <<iter->second[0] << "\t\t\t" << iter->second[1] << std::endl;
+        std::string strBssid = iter->first;
+        std::string strEssid = iter->second[0];
+        std::string strPwr = iter->second[1];
+
+        std::cout << strBssid << "\t" << strEssid << "\t\t\t" << strPwr << std::endl;
     }
 
 }
@@ -97,20 +111,21 @@ std::string CAirodump::getBSSID()
 
 std::string CAirodump::getESSID()
 {
+    int essidPosition = sizeof(ST_WIRELESS_PACKET);
     ST_WIRELESS_PACKET* wirelessPacket = (ST_WIRELESS_PACKET*)packet;  
-    u_char* data = (u_char*)packet + 62;
-    std::string essid;
+    u_char* data = (u_char*)packet + essidPosition;
+    std::string strEssid;
     if(data[0] == '\0')
     {
-        essid = "hidden AP";
-        return essid;
+        strEssid = "hidden AP";
+        return strEssid;
     }
 
     for(int i = 0; 
         i < wirelessPacket->wirelessManager.tagLength;
         i++)
-        essid += data[i];
+        strEssid += data[i];
 
-    return essid;
+    return strEssid;
   
 }
