@@ -21,6 +21,9 @@ CAirodump::~CAirodump(){
 int CAirodump::airodump()
 {
 
+    initscr();
+    move(0,0);
+  
     while(1)
     {
         int status = getWirelessPacket(pcap);
@@ -33,6 +36,8 @@ int CAirodump::airodump()
         printLog();
     }
 
+    getch();
+
     
     return 0;
 
@@ -40,8 +45,7 @@ int CAirodump::airodump()
 
 int CAirodump::getWirelessPacket(pcap_t* pcap)
 {
-
-
+  
 	struct pcap_pkthdr* header;
 	int res = pcap_next_ex(pcap, &header, &packet);
 	if (res == 0) NEXT;
@@ -80,17 +84,17 @@ void CAirodump::convertPacket()
 
 void CAirodump::printLog()
 {
-    system("clear");
-    std::cout << "BSSID\t\t\t" << "PWR\t\t\t" << "ESSID" <<std::endl;
-    std::cout << std::endl;
+    clear();
+    printw("BSSID\t\t\tPWR\t\t\tESSID\n");
     for(auto iter = apInfo.begin(); iter != apInfo.end(); iter++)
     {
         std::string strBssid = iter->first;
         std::string strEssid = iter->second[0];
         std::string strPwr = iter->second[1];
 
-        std::cout << strBssid << "\t" << strEssid << "\t\t\t" << strPwr << std::endl;
-    }
+        printw("%s\t%s\t\t\t%s\n",strBssid.c_str(),strEssid.c_str(),strPwr.c_str());
+        refresh();
+    }    
 
 }
 

@@ -6,7 +6,7 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <pcap.h>
-
+#include <ncurses.h>
 
 enum status
 {
